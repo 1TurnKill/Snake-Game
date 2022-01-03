@@ -4,21 +4,49 @@ from pygame.math import Vector2
 class SNAKE:
 
     def __init__(self):
-        # สร้างตัวงู
-        # ทิศทางการเคลื่อนที่เริ่มต้นของงู
-        # การเพิ่มความยาวของงู
-        self.body = [Vector2(5,10),Vector2(6,10),Vector2(7,10)]
+
+        self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
         self.direction = Vector2(1,0)
         self.new_block = False
 
+        self.head_up = pygame.image.load('Graphics/snake/head/head_up.png').convert_alpha()
+        self.head_down = pygame.image.load('Graphics/snake/head/head_down.png').convert_alpha()
+        self.head_right = pygame.image.load('Graphics/snake/head/head_right.png').convert_alpha()
+        self.head_left = pygame.image.load('Graphics/snake/head/head_left.png').convert_alpha()
+		
+        self.tail_up = pygame.image.load('Graphics/snake/tail/tail_up.png').convert_alpha()
+        self.tail_down = pygame.image.load('Graphics/snake/tail/tail_down.png').convert_alpha()
+        self.tail_right = pygame.image.load('Graphics/snake/tail/tail_right.png').convert_alpha()
+        self.tail_left = pygame.image.load('Graphics/snake/tail/tail_left.png').convert_alpha()
+
+        self.body_vertical = pygame.image.load('Graphics/snake/body/body_vertical.png').convert_alpha()
+        self.body_horizontal = pygame.image.load('Graphics/snake/body/body_horizontal.png').convert_alpha()
+
+        self.body_tr = pygame.image.load('Graphics/snake/body/body_tr.png').convert_alpha()
+        self.body_tl = pygame.image.load('Graphics/snake/body/body_tl.png').convert_alpha()
+        self.body_br = pygame.image.load('Graphics/snake/body/body_br.png').convert_alpha()
+        self.body_bl = pygame.image.load('Graphics/snake/body/body_bl.png').convert_alpha()
+
     def draw_snake(self):
-        for block in self.body:
-            # สร้าง rect
+        for index,block in enumerate(self.body):
+            # rect สำหรับ ตำเเหน่ง
             x_pos = int(block.x * cell_size)
             y_pos = int(block.y * cell_size)
             block_rect = pygame.Rect(x_pos,y_pos,cell_size,cell_size)
-            # วาด rectangle
-            pygame.draw.rect(screen,(183,111,122),block_rect)
+            # ทิศทาง หน้าของหัวงู
+            if index == 0: # ส่วนตำเเหน่งที่ 0 ของงู(ส่วนหัว)
+                screen.blit(self.head_right,block_rect)
+            else:
+                pygame.draw.rect(screen,(150,100,100),block_rect)
+
+
+        #for block in self.body:
+        #   # สร้าง rect
+        #   x_pos = int(block.x * cell_size)
+        #   y_pos = int(block.y * cell_size)
+        #   block_rect = pygame.Rect(x_pos,y_pos,cell_size,cell_size)
+        #   # วาด rectangle
+        #   pygame.draw.rect(screen,(183,111,122),block_rect)
 
     def move_snake(self): # ให้ทำความเข้าใจ "การเคลื่อนไหวของตัวงู" ก่อนที่จะไป "การเพิ่มความยาวของงู"
         if self.new_block == True:
@@ -49,7 +77,8 @@ class FRUIT:
         # สร้าง rect
         fruit_rect = pygame.Rect(int(self.pos.x * cell_size),int(self.pos.y * cell_size),cell_size,cell_size)
         # วาด rectangle
-        pygame.draw.rect(screen,(126,166,114),fruit_rect)
+        screen.blit(apple,fruit_rect)
+        #pygame.draw.rect(screen,(126,166,114),fruit_rect)
 
     def randomize(self):
         # สร้าง ตำเเหน่งพิกัด x เเละ y
@@ -68,6 +97,7 @@ class MAIN:
     def update(self):
         self.snake.move_snake()
         self.check_collision()
+        self.check_fail()
 
     def draw_elements(self):
         self.fruit.draw_fruit()
@@ -79,12 +109,27 @@ class MAIN:
             self.fruit.randomize()
             # เพิ่มจำนวนบล็อกให้กับงู (เพิ่มความยาวของงู 1 บล็อก)
             self.snake.add_block()
+    
+    def check_fail(self):
+        # กรณีที่งูออกจาก screen
+        if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number: # ถ้าหัวของงู(self.snake.body[0]) ไม่อยู่ระหว่าง 0 กับ 20(cell_number) ทั้งเเกน x เเละ y -> เกมจะจบทันที
+            self.game_over()             
+        # กรณีที่งูชนกับตัวเอง
+        for block in self.snake.body[1:]:   # ให้ block เป็น ตำเเหน่งส่วนตัวของงูทั้งหมดยกเว้นส่วนที่เป็น ตำเเหน่งที่ 0 ของงู(ส่วนหัวของงู)
+            if block == self.snake.body[0]: # ถ้า ตำเเหน่งส่วนตัวของงู เท่ากับ ตำเเหน่งที่ 0 ของงู  (ถ้า ส่วนตัวของงู อยู่ในตำเเหน่งเดียวกันกับ ส่วนหัวของงู) -> เกมจะจบทันที
+                self.game_over() 
+
+    def game_over(self):
+        pygame.quit()
+        sys.exit()
+
 
 pygame.init()
-cell_size = 40
-cell_number = 20
-screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size))
-clock = pygame.time.Clock()
+cell_size = 40  # ขนาด cell
+cell_number = 20 # จำนวน cell
+screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size)) # ขนาดหน้าจอ
+clock = pygame.time.Clock() # ตัวกำหนดค่า fps
+apple = pygame.image.load('Graphics/fruit/apple.png').convert_alpha() # นำรูปเเอปเปิ้ลเข้า ปล. convert_alpha() ทำให้ pygame ทำงานง่ายขึ้นเฉยๆ
 
 # ตั้งค่าเวลา(millisecond) การอัพเดตข้อมูลบน screen
 SCREEN_UPDATE = pygame.USEREVENT 
@@ -103,18 +148,26 @@ while True:
             main_game.update()
         # event การควบคุมเคลื่อนไหวของงู จาก keyboard
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                main_game.snake.direction = Vector2(0,-1) # ถ้ากดลูกศรขึ้น => งูจะเคลื่อนที่ไปทางด้านบน
-            if event.key == pygame.K_DOWN:
-                main_game.snake.direction = Vector2(0,1) # ถ้ากดลูกศรลง => งูจะเคลื่อนที่ไปทางด้านล่าง
-            if event.key == pygame.K_RIGHT:
-                main_game.snake.direction = Vector2(1,0) # ถ้ากดลูกศรขวา => งูจะเคลื่อนที่ไปทางขวา
-            if event.key == pygame.K_LEFT:
-                main_game.snake.direction = Vector2(-1,0) # ถ้ากดลูกศรซ้าย => งูจะเคลื่อนที่ไปทางซ้าย
+
+            if event.key == pygame.K_UP: # ถ้ามีเหตุการณ์ที่กดลูกศรขึ้น 
+                if main_game.snake.direction.y != 1: # ถ้าทิศทางของงู ในพิกัด y ไม่เท่ากับ 1 (งูไม่ได้เคลื่อนไปทางด้านล่าง) 
+                    main_game.snake.direction = Vector2(0,-1) # => งูจะเคลื่อนที่ไปทางด้านบน
+
+            if event.key == pygame.K_DOWN: # ถ้ามีเหตุการณ์ที่กดลูกศรลง
+                if main_game.snake.direction.y != -1: # ถ้าทิศทางของงู ในพิกัด y ไม่เท่ากับ -1 (งูไม่ได้เคลื่อนไปทางด้านบน)
+                    main_game.snake.direction = Vector2(0,1) # => งูจะเคลื่อนที่ไปทางด้านล่าง
+
+            if event.key == pygame.K_RIGHT: # ถ้ามีเหตุการณ์ที่กดลูกศรขวา 
+                if main_game.snake.direction.x != -1: # ถ้าทิศทางของงู ในพิกัด x ไม่เท่ากับ -1 (งูไม่ได้เคลื่อนไปทางด้านซ้าย)
+                    main_game.snake.direction = Vector2(1,0) # => งูจะเคลื่อนที่ไปทางขวา
+
+            if event.key == pygame.K_LEFT: # ถ้ามีเหตุการณ์ที่กดลูกศรซ้าย
+                if main_game.snake.direction.x != 1: # ถ้าทิศทางของงู ในพิกัด x ไม่เท่ากับ 1 (งูไม่ได้เคลื่อนไปทางด้านขวา)
+                    main_game.snake.direction = Vector2(-1,0) # => งูจะเคลื่อนที่ไปทางซ้าย
                 
 
 
-    screen.fill((175,215,70))
-    main_game.draw_elements()
-    pygame.display.update()
-    clock.tick(60)
+    screen.fill((175,215,70)) # กำหนดสีของ screen
+    main_game.draw_elements() # อยู่ใน class main
+    pygame.display.update() # อยู่ใน class main
+    clock.tick(60) # fps = 60
