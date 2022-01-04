@@ -5,27 +5,27 @@ class SNAKE:
 
     def __init__(self):
 
-        self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
-        self.direction = Vector2(1,0)
+        self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)] # ตัวงู
+        self.direction = Vector2(1,0) # ทิศทางที่งูเริ่มเคลื่อนที่
         self.new_block = False
 
-        self.head_up = pygame.image.load('Graphics/snake/head/head_up.png').convert_alpha()
-        self.head_down = pygame.image.load('Graphics/snake/head/head_down.png').convert_alpha()
-        self.head_right = pygame.image.load('Graphics/snake/head/head_right.png').convert_alpha()
-        self.head_left = pygame.image.load('Graphics/snake/head/head_left.png').convert_alpha()
+        self.head_up = pygame.image.load('Graphics/snake/head/head_up.png').convert_alpha() # ภาพหัว หันด้านบน
+        self.head_down = pygame.image.load('Graphics/snake/head/head_down.png').convert_alpha() # ภาพหัว หันด้านล่าง
+        self.head_right = pygame.image.load('Graphics/snake/head/head_right.png').convert_alpha() # ภาพหัว หันด้านขวา
+        self.head_left = pygame.image.load('Graphics/snake/head/head_left.png').convert_alpha() # ภาพหัว หันด้านซ้าย
 		
-        self.tail_up = pygame.image.load('Graphics/snake/tail/tail_up.png').convert_alpha()
-        self.tail_down = pygame.image.load('Graphics/snake/tail/tail_down.png').convert_alpha()
-        self.tail_right = pygame.image.load('Graphics/snake/tail/tail_right.png').convert_alpha()
-        self.tail_left = pygame.image.load('Graphics/snake/tail/tail_left.png').convert_alpha()
+        self.tail_up = pygame.image.load('Graphics/snake/tail/tail_up.png').convert_alpha() # ภาพหาง หันด้านบน
+        self.tail_down = pygame.image.load('Graphics/snake/tail/tail_down.png').convert_alpha() # ภาพหาง หันด้านล่าง
+        self.tail_right = pygame.image.load('Graphics/snake/tail/tail_right.png').convert_alpha() # ภาพหาง หันด้านขวา
+        self.tail_left = pygame.image.load('Graphics/snake/tail/tail_left.png').convert_alpha() # ภาพหาง หันด้านซ้าย
 
-        self.body_vertical = pygame.image.load('Graphics/snake/body/body_vertical.png').convert_alpha()
-        self.body_horizontal = pygame.image.load('Graphics/snake/body/body_horizontal.png').convert_alpha()
+        self.body_vertical = pygame.image.load('Graphics/snake/body/body_vertical.png').convert_alpha() # ภาพตัว เเนวตั้ง(พิกัด x เดียวกัน)
+        self.body_horizontal = pygame.image.load('Graphics/snake/body/body_horizontal.png').convert_alpha() # ภาพตัว เเนวนอน(พิกัด y เดียวกัน)
 
-        self.body_tr = pygame.image.load('Graphics/snake/body/body_tr.png').convert_alpha()
-        self.body_tl = pygame.image.load('Graphics/snake/body/body_tl.png').convert_alpha()
-        self.body_br = pygame.image.load('Graphics/snake/body/body_br.png').convert_alpha()
-        self.body_bl = pygame.image.load('Graphics/snake/body/body_bl.png').convert_alpha()
+        self.body_topright = pygame.image.load('Graphics/snake/body/body_topright.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านบนเเล้วไปทางขวา
+        self.body_topleft = pygame.image.load('Graphics/snake/body/body_topleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านบนเเล้วไปทางซ้าย
+        self.body_bottomright = pygame.image.load('Graphics/snake/body/body_bottomright.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางขวา
+        self.body_bottomleft = pygame.image.load('Graphics/snake/body/body_bottomleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางซ้าย
 
     
         self.update_head_graphics()
@@ -45,24 +45,46 @@ class SNAKE:
             elif index == len(self.body) - 1: # ถ้าส่วนตำเเหน่งของงู มีค่าเท่ากับ ส่วนทั้งหมดของงู - 1 (ส่วนปลายหาง)
                 screen.blit(self.tail,block_rect)  # ให้เเสดง รูปภาพที่เป็น "self.tail"
             else:
-                previous_block = self.body[index + 1] - block # บล็อกก่อนหน้า = 
-                next_block = self.body[index - 1] - block # บล็อกถัดไป
-            else:
-                pygame.draw.rect(screen,(150,100,100),block_rect) # ให้เเสดงเป็นตัวงู
+                previous_block = self.body[index + 1] - block # บล็อกก่อนหน้า = (ตำเเหน่งตัวของงูปัจจุบัน + 1) - ตำเเหน่งตัวของงูทั้งหมด 
+                next_block = self.body[index - 1] - block # บล็อกถัดไป = (ตำเเหน่งตัวของงูปัจจุบัน - 1) - ตำเเหน่งตัวของงูทั้งหมด
+                if previous_block.x == next_block.x: # ถ้าพิกัด x ของบล็อกก่อนหน้า มีค่าเท่ากับ พิกัด x ของบล็อกถัดไป
+                    screen.blit(self.body_vertical,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัว เเนวตั้ง(พิกัด x เดียวกัน)"
+                elif previous_block.y == next_block.y: # ถ้าพิกัด y ของบล็อกก่อนหน้า มีค่าเท่ากับ พิกัด y ของบล็อกถัดไป
+                    screen.blit(self.body_horizontal,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัว เเนวนอน(พิกัด y เดียวกัน)"
+                else:
+                    if previous_block.x == -1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == -1: # ถ้า บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านซ้าย เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านบน
+                                                                                                                       # หรือ บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านบน เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านซ้าย
+                        screen.blit(self.body_topleft,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัวของงู ที่มาจากด้านบนเเล้วไปทางซ้าย"
+
+                    elif previous_block.x == 1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == 1: # ถ้า บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านขวา เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านบน
+                                                                                                                       # หรือ บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านบน เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านขวา
+                        screen.blit(self.body_topright,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัวของงู ที่มาจากด้านบนเเล้วไปทางขวา"
+
+                    elif previous_block.x == -1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == -1: # ถ้า บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านซ้าย เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านล่าง
+                                                                                                                       # หรือ บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านล่าง เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านซ้าย
+                        screen.blit(self.body_bottomleft,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางซ้าย"
+
+                    elif previous_block.x == 1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == 1:   # ถ้า บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านขวา เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านล่าง
+                                                                                                                       # หรือ บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านล่าง เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านขวา
+                        screen.blit(self.body_bottomright,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางขวา"
+                    
+
+
+           
 
     def update_head_graphics(self):
         head_relation = self.body[1] - self.body[0] # ให้ head_relation เท่ากับการ ที่ Vector ส่วนของงูในตำเเหน่งที่ 0(หัวงู) - Vector ส่วนของงูในตำเเหน่งที่ 1(ก่อนหัวงู) 
-        if head_relation == Vector2(1,0): self.head = self.head_left # ถ้า head_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ ภาพหัวงูหันด้านซ้าย
-        elif head_relation == Vector2(-1,0): self.head = self.head_right # ถ้า head_relation มีค่าเท่ากับ Vector2(-1,0) ให้ self.head เท่ากับ ภาพหัวงูหันด้านขวา 
-        elif head_relation == Vector2(0,1): self.head = self.head_up # ถ้า head_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ ภาพหัวงูหันด้านบน
-        elif head_relation == Vector2(0,-1): self.head = self.head_down # ถ้า head_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ ภาพหัวงูหันด้านล่าง
+        if head_relation == Vector2(1,0): self.head = self.head_left # ถ้า head_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ "ภาพหัว หันด้านซ้าย"
+        elif head_relation == Vector2(-1,0): self.head = self.head_right # ถ้า head_relation มีค่าเท่ากับ Vector2(-1,0) ให้ self.head เท่ากับ "ภาพหัว หันด้านขวา" 
+        elif head_relation == Vector2(0,1): self.head = self.head_up # ถ้า head_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ "ภาพหัว หันด้านบน"
+        elif head_relation == Vector2(0,-1): self.head = self.head_down # ถ้า head_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ "ภาพหัว หันด้านล่าง"
 
     def update_tail_graphics(self):
         tail_relation = self.body[-2] - self.body[-1] # ให้ tail_relation เท่ากับการ ที่ Vector ส่วนของงูในตำเเหน่งที่ -2(ก่อนปลายหางงู) - Vector ส่วนของงูในตำเเหน่งที่ 1(ปลายหางงู) 
-        if tail_relation == Vector2(1,0): self.tail = self.tail_left # ถ้า tail_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ ภาพหางงูหันด้านซ้าย
-        elif tail_relation == Vector2(-1,0): self.tail = self.tail_right # ถ้า tail_relation มีค่าเท่ากับ Vector2(-1,0) ให้ self.head เท่ากับ ภาพหางงูหันด้านขวา 
-        elif tail_relation == Vector2(0,1): self.tail = self.tail_up # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ ภาพหางงูหันด้านบน
-        elif tail_relation == Vector2(0,-1): self.tail = self.tail_down # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ ภาพหางงูหันด้านล่าง
+        if tail_relation == Vector2(1,0): self.tail = self.tail_left # ถ้า tail_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ "ภาพหาง หันด้านซ้าย"
+        elif tail_relation == Vector2(-1,0): self.tail = self.tail_right # ถ้า tail_relation มีค่าเท่ากับ Vector2(-1,0) ให้ self.head เท่ากับ "ภาพหาง หันด้านขวา"
+        elif tail_relation == Vector2(0,1): self.tail = self.tail_up # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ "ภาพหาง หันด้านบน"
+        elif tail_relation == Vector2(0,-1): self.tail = self.tail_down # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ "ภาพหาง หันด้านล่าง"
 
 
 
