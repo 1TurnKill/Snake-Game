@@ -27,17 +27,46 @@ class SNAKE:
         self.body_br = pygame.image.load('Graphics/snake/body/body_br.png').convert_alpha()
         self.body_bl = pygame.image.load('Graphics/snake/body/body_bl.png').convert_alpha()
 
+    
+        self.update_head_graphics()
+
     def draw_snake(self):
+        self.update_head_graphics()
+        self.update_tail_graphics()
+
         for index,block in enumerate(self.body):
-            # rect สำหรับ ตำเเหน่ง
+            # 1.rect สำหรับ ตำเเหน่ง
             x_pos = int(block.x * cell_size)
             y_pos = int(block.y * cell_size)
             block_rect = pygame.Rect(x_pos,y_pos,cell_size,cell_size)
-            # ทิศทาง หน้าของหัวงู
-            if index == 0: # ส่วนตำเเหน่งที่ 0 ของงู(ส่วนหัว)
-                screen.blit(self.head_right,block_rect)
+            # 2.ทิศทาง หน้าของหัวงู
+            if index == 0: # ถ้าส่วนตำเเหน่งของงู มีค่าเท่ากับ 0 (ส่วนหัว)
+                screen.blit(self.head,block_rect) # ให้เเสดง รูปภาพที่เป็น "self.head"
+            elif index == len(self.body) - 1: # ถ้าส่วนตำเเหน่งของงู มีค่าเท่ากับ ส่วนทั้งหมดของงู - 1 (ส่วนปลายหาง)
+                screen.blit(self.tail,block_rect)  # ให้เเสดง รูปภาพที่เป็น "self.tail"
             else:
-                pygame.draw.rect(screen,(150,100,100),block_rect)
+                previous_block = self.body[index + 1] - block # บล็อกก่อนหน้า = 
+                next_block = self.body[index - 1] - block # บล็อกถัดไป
+            else:
+                pygame.draw.rect(screen,(150,100,100),block_rect) # ให้เเสดงเป็นตัวงู
+
+    def update_head_graphics(self):
+        head_relation = self.body[1] - self.body[0] # ให้ head_relation เท่ากับการ ที่ Vector ส่วนของงูในตำเเหน่งที่ 0(หัวงู) - Vector ส่วนของงูในตำเเหน่งที่ 1(ก่อนหัวงู) 
+        if head_relation == Vector2(1,0): self.head = self.head_left # ถ้า head_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ ภาพหัวงูหันด้านซ้าย
+        elif head_relation == Vector2(-1,0): self.head = self.head_right # ถ้า head_relation มีค่าเท่ากับ Vector2(-1,0) ให้ self.head เท่ากับ ภาพหัวงูหันด้านขวา 
+        elif head_relation == Vector2(0,1): self.head = self.head_up # ถ้า head_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ ภาพหัวงูหันด้านบน
+        elif head_relation == Vector2(0,-1): self.head = self.head_down # ถ้า head_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ ภาพหัวงูหันด้านล่าง
+
+    def update_tail_graphics(self):
+        tail_relation = self.body[-2] - self.body[-1] # ให้ tail_relation เท่ากับการ ที่ Vector ส่วนของงูในตำเเหน่งที่ -2(ก่อนปลายหางงู) - Vector ส่วนของงูในตำเเหน่งที่ 1(ปลายหางงู) 
+        if tail_relation == Vector2(1,0): self.tail = self.tail_left # ถ้า tail_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ ภาพหางงูหันด้านซ้าย
+        elif tail_relation == Vector2(-1,0): self.tail = self.tail_right # ถ้า tail_relation มีค่าเท่ากับ Vector2(-1,0) ให้ self.head เท่ากับ ภาพหางงูหันด้านขวา 
+        elif tail_relation == Vector2(0,1): self.tail = self.tail_up # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ ภาพหางงูหันด้านบน
+        elif tail_relation == Vector2(0,-1): self.tail = self.tail_down # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ ภาพหางงูหันด้านล่าง
+
+
+
+
 
 
         #for block in self.body:
