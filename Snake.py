@@ -5,7 +5,7 @@ class SNAKE:
 
     def __init__(self):
         self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)] # ตัวงู
-        self.direction = Vector2(1,0) # ทิศทางที่งูเริ่มเคลื่อนที่
+        self.direction = Vector2(0,0) # ทิศทางที่งูเริ่มเคลื่อนที่
         self.new_block = False
 
         self.head_up = pygame.image.load('Graphics/snake/head/head_up.png').convert_alpha() # ภาพหัว หันด้านบน
@@ -25,6 +25,13 @@ class SNAKE:
         self.body_topleft = pygame.image.load('Graphics/snake/body/body_topleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านบนเเล้วไปทางซ้าย
         self.body_bottomright = pygame.image.load('Graphics/snake/body/body_bottomright.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางขวา
         self.body_bottomleft = pygame.image.load('Graphics/snake/body/body_bottomleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางซ้าย
+        
+        self.eat_sound = pygame.mixer.Sound('Sound/Eat.wav') # เสียงกิน
+        self.crash_sound = pygame.mixer.Sound('Sound/Crash.wav') # เสียงชน
+        self.right_sound = pygame.mixer.Sound('Sound/Right.wav') # เสียงหันขวา
+        self.up_sound = pygame.mixer.Sound('Sound/Up.wav') # เสียงหันบน
+        self.left_sound = pygame.mixer.Sound('Sound/Left.wav') # เสียงหันซ้าย
+        self.down_sound = pygame.mixer.Sound('Sound/Down.wav') # เสียงหันล่าง
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -78,11 +85,6 @@ class SNAKE:
         elif tail_relation == Vector2(0,1): self.tail = self.tail_up # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,1) ให้ self.head เท่ากับ "ภาพหาง หันด้านบน"
         elif tail_relation == Vector2(0,-1): self.tail = self.tail_down # ถ้า tail_relation มีค่าเท่ากับ Vector2(0,-1) ให้ self.head เท่ากับ "ภาพหาง หันด้านล่าง"
 
-
-
-
-
-
         #for block in self.body:
         #   # สร้าง rect
         #   x_pos = int(block.x * cell_size)
@@ -107,9 +109,31 @@ class SNAKE:
             body_copy.insert(0,body_copy[0] + self.direction) # => ในตำเเหน่งที่เป็นส่วนหัว(0) จะมีการเพิ่มบล็อก ตามทิศทางการเคลื่อนที่ของงู(self.direction)
                                                               # ปล.บล็อกที่เพิ่ม จะเอามาจากส่วนหัวของงู(body_copy[0])                                                        
             self.body = body_copy[:] # เป็นการคืนค่า ส่วนของงูทั้งหมด(self.body) กลับไปยัง การคัดลอกอีกครั้ง(body_copy[:])
+    
+    def reset(self): # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง
+        self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)]
+        self.direction = Vector2(0,0)
 
     def add_block(self):
         self.new_block = True
+
+    def play_eat_sound(self):
+        self.eat_sound.play()
+
+    def play_crash_sound(self):
+        self.crash_sound.play()
+
+    def play_right_sound(self):
+        self.right_sound.play()
+
+    def play_up_sound(self):
+        self.up_sound.play()
+
+    def play_left_sound(self):
+        self.left_sound.play()
+    
+    def play_down_sound(self):
+        self.down_sound.play()
 
 class FRUIT:
 
@@ -146,26 +170,32 @@ class MAIN:
         self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
+        self.draw_score()
 
     def check_collision(self):# หลักการ กินของงู
         if self.fruit.pos == self.snake.body[0]: # ถ้า ตำเเหน่งของผลไม้ เท่ากับ ตำเเหน่งที่ 0 ของงู  (ถ้า ผลไม้ อยู่ในตำเเหน่งเดียวกันกับ ส่วนหัวของงู)
+            # ให้มีการเล่นเสียง eat_sound
+            self.snake.play_eat_sound()
             # เปลี่ยนตำเเหน่งของผลไม้ใหม่
             self.fruit.randomize()
             # เพิ่มจำนวนบล็อกให้กับงู (เพิ่มความยาวของงู 1 บล็อก)
             self.snake.add_block()
-    
+
+        for block in self.snake.body[1:]: # ให้ block เป็น ส่วนตัวของงูตั้งเเต่ตำเเหน่งที่ 1 จน ถึง ตำเเหน่งสุดท้าย (เอาส่วนตัวของงูทั้งหมดยกเว้น ตำเเหน่งที่ 0,หัว) 
+            if block == self.fruit.pos: # ถ้า block เท่ากับ ตำเเหน่งของผลไม้
+                self.fruit.randomize() # ให้มีการเปลี่ยนตำเเหน่งของผลไม้ใหม่ใหม่
+  
     def check_fail(self):
         # กรณีที่งูออกจาก screen
         if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number: # ถ้าหัวของงู(self.snake.body[0]) ไม่อยู่ระหว่าง 0 กับ 20(cell_number) ทั้งเเกน x เเละ y -> เกมจะจบทันที
-            self.game_over()             
+            self.game_over() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง     
         # กรณีที่งูชนกับตัวเอง
         for block in self.snake.body[1:]:   # ให้ block เป็น ตำเเหน่งส่วนตัวของงูทั้งหมดยกเว้นส่วนที่เป็น ตำเเหน่งที่ 0 ของงู(ส่วนหัวของงู)
             if block == self.snake.body[0]: # ถ้า ตำเเหน่งส่วนตัวของงู เท่ากับ ตำเเหน่งที่ 0 ของงู  (ถ้า ส่วนตัวของงู อยู่ในตำเเหน่งเดียวกันกับ ส่วนหัวของงู) -> เกมจะจบทันที
-                self.game_over() 
-
+                self.game_over() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง    
+                
     def game_over(self):
-        pygame.quit()
-        sys.exit()
+        self.snake.reset() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง
 
     def draw_grass(self):
         grass_color = (167,209,61) # สีเขียวเข้ม
@@ -185,15 +215,36 @@ class MAIN:
                         # วาด rectangle
                         pygame.draw.rect(screen,grass_color,grass_rect)
 
+    def draw_score(self):
+        score_text = str(len(self.snake.body) - 3) # กำหนดให้คะเเนน มีค่าเท่ากับ ความยาวของตัวงู - 3 รวมถึงกำหนดเป็น string
+                                                   # ปล.ที่ลบ 3 เพราะความยาวงูเริ่มต้นคือ 3 บล็อก
+        score_surface = game_font.render(score_text,True,(56,74,12)) # ปล.การปรับค่าเป็น True จะทำให้ตัวอักษรลบรอยหยัก -> ตัวอักษรเรียบขึ้น
+        score_x = int(cell_size * cell_number - 60) # กำหนดให้ score ที่อยู่ชิดขวาของ screen ขยับมาด้านซ้าน 60 px
+        score_y = int(cell_size * cell_number - 40) # กำหนดให้ score ที่อยู่ชิดล่างของ screen ขยับมาด้านบน 40 px
+        apple_x = int(cell_size * cell_number - 100) # กำหนดให้ apple ที่อยู่ชิดขวาของ screen ขยับมาด้านซ้าย 100 px
+        apple_y = int(cell_size * cell_number - 40) # กำหนดให้ apple ที่อยู่ชิดล่างของ screen ขยับมาด้านบน 40 px
+        bg_x    = int(cell_size * cell_number - 125) # กำหนดให้ score ที่อยู่ชิดขวาของ screen ขยับมาด้านซ้าย 125 px
+        bg_y    = int(cell_size * cell_number - 60) # กำหนดให้ score ที่อยู่ชิดล่างของ screen ขยับมาด้านบน 60 px       
+        # สร้าง rect
+        score_rect = score_surface.get_rect(center = (score_x,score_y))
+        apple_rect = apple.get_rect(center = (apple_x,apple_y))
+        bg_rect = pygame.Rect(bg_x,bg_y,apple_rect.width + score_rect.width + 20,apple_rect.height) # ให้พื้นหลัง มีพิกัดเป็น bg_x,bg_y
+                                                                                                    # เเละมีความกว้างเท่ากับ ความกว้างของ apple_rect + score_rect + 20 เเละมีความสูงเท่ากับ apple_rect 
+        # วาด rectangle
+        pygame.draw.rect(screen,(255,250,250),bg_rect) # พื้นหลัง apple เเละ score
+        screen.blit(score_surface,score_rect) # score
+        screen.blit(apple,apple_rect) # apple
+        pygame.draw.rect(screen,(56,74,12),bg_rect,2) # กรอบพื้นหลัง apple เเละ score
 
+pygame.mixer.pre_init(44100,-16,2,512) # ไม่ทำให้เสียงมีการดีเลย์
 pygame.init()
 cell_size = 40  # ขนาด cell
 cell_number = 20 # จำนวน cell
 screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size)) # ขนาดหน้าจอ
 clock = pygame.time.Clock() # ตัวกำหนดค่า fps
 apple = pygame.image.load('Graphics/fruit/apple.png').convert_alpha() # นำรูปเเอปเปิ้ลเข้า ปล. convert_alpha() ทำให้ pygame ทำงานง่ายขึ้นเฉยๆ
-game_font = pygame.font.Font('Font/PressStart2P-vaV7', 25) # นำ font เข้า --> 
-
+game_font = pygame.font.Font('Font/PressStart2P-vaV7.ttf', 25) # นำ font เข้า --> เป็น Font PressStart2P ขนาด 25px 
+                                                               
 # ตั้งค่าเวลา(millisecond) การอัพเดตข้อมูลบน screen
 SCREEN_UPDATE = pygame.USEREVENT 
 pygame.time.set_timer(SCREEN_UPDATE,150)
