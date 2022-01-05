@@ -27,11 +27,18 @@ class SNAKE:
         self.body_bottomleft = pygame.image.load('Graphics/snake/body/body_bottomleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางซ้าย
         
         self.eat_sound = pygame.mixer.Sound('Sound/Eat.wav') # เสียงกิน
+        self.eat_sound.set_volume(0.3) # ความดังเสียงกิน 
         self.crash_sound = pygame.mixer.Sound('Sound/Crash.wav') # เสียงชน
+        self.crash_sound.set_volume(0.3) # ความดังเสียงชน
         self.right_sound = pygame.mixer.Sound('Sound/Right.wav') # เสียงหันขวา
+        self.right_sound.set_volume(0.3) # ความดังเหันขวา
         self.up_sound = pygame.mixer.Sound('Sound/Up.wav') # เสียงหันบน
+        self.up_sound.set_volume(0.3) # ความดังเหันบน
         self.left_sound = pygame.mixer.Sound('Sound/Left.wav') # เสียงหันซ้าย
+        self.left_sound.set_volume(0.3) # ความดังหันซ้าย
         self.down_sound = pygame.mixer.Sound('Sound/Down.wav') # เสียงหันล่าง
+        self.down_sound.set_volume(0.3) # ความดังหันล่าง
+        # *ปล.เสียงดังสุดคือ 1 เบาสุดคือ 0(ไม่ได้ยิน)
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -94,6 +101,8 @@ class SNAKE:
         #   pygame.draw.rect(screen,(183,111,122),block_rect)
 
     def move_snake(self): # ให้ทำความเข้าใจ "การเคลื่อนไหวของตัวงู" ก่อนที่จะไป "การเพิ่มความยาวของงู"
+        if self.direction == Vector2(0,0): 
+            return # ถ้างูไม่เคลื่อนที่ จะคืนค่ากลับไป เเละหยุดการทำงานของ คำสั่งด้านล่าง
         if self.new_block == True:
             # การเพิ่มความยาวของงู            
             body_copy = self.body[:] # ให้ body_copy มีค่าเท่ากับ ส่วนตัวของงูทั้งหมด 
@@ -160,6 +169,9 @@ class MAIN:
     def __init__(self):
         self.snake = SNAKE() 
         self.fruit = FRUIT()
+        self.musicbackground_sound = pygame.mixer.Sound('Sound/music background.wav') # เสียงเพลงประกอบ
+        self.musicbackground_sound.set_volume(0.1) # ความดังเสียงเพลงประกอบ
+        self.musicbackground_sound.play(loops = -1) # เสียงเพลงประกอบทำงานไม่หยุด
 
     def update(self):
         self.snake.move_snake()
@@ -190,11 +202,14 @@ class MAIN:
         if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number: # ถ้าหัวของงู(self.snake.body[0]) ไม่อยู่ระหว่าง 0 กับ 20(cell_number) ทั้งเเกน x เเละ y -> เกมจะจบทันที
             self.game_over() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง     
         # กรณีที่งูชนกับตัวเอง
+        if self.snake.direction == Vector2(0,0): 
+            return # ถ้างูไม่เคลื่อนที่ จะคืนค่ากลับไป เเละหยุดการทำงานของคำสั่งด้านล่าง
         for block in self.snake.body[1:]:   # ให้ block เป็น ตำเเหน่งส่วนตัวของงูทั้งหมดยกเว้นส่วนที่เป็น ตำเเหน่งที่ 0 ของงู(ส่วนหัวของงู)
-            if block == self.snake.body[0]: # ถ้า ตำเเหน่งส่วนตัวของงู เท่ากับ ตำเเหน่งที่ 0 ของงู  (ถ้า ส่วนตัวของงู อยู่ในตำเเหน่งเดียวกันกับ ส่วนหัวของงู) -> เกมจะจบทันที
-                self.game_over() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง    
-                
+            if block == self.snake.body[0]: # ถ้า ตำเเหน่งส่วนตัวของงู เท่ากับ ตำเเหน่งที่ 0 ของงู  (ถ้า ส่วนตัวของงู อยู่ในตำเเหน่งเดียวกันกับ ส่วนหัวของงู) -> เกมจะจบทันที 
+                self.game_over() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง
+            
     def game_over(self):
+        self.snake.play_crash_sound()
         self.snake.reset() # ให้งูกลับไปตำเเหน่งเริ่มต้น เเละ หยุดนิ่ง
 
     def draw_grass(self):
@@ -265,18 +280,22 @@ while True:
 
             if event.key == pygame.K_UP: # ถ้ามีเหตุการณ์ที่กดลูกศรขึ้น 
                 if main_game.snake.direction.y != 1: # ถ้าทิศทางของงู ในพิกัด y ไม่เท่ากับ 1 (งูไม่ได้เคลื่อนไปทางด้านล่าง) 
+                    main_game.snake.play_up_sound()
                     main_game.snake.direction = Vector2(0,-1) # => งูจะเคลื่อนที่ไปทางด้านบน
 
             if event.key == pygame.K_DOWN: # ถ้ามีเหตุการณ์ที่กดลูกศรลง
                 if main_game.snake.direction.y != -1: # ถ้าทิศทางของงู ในพิกัด y ไม่เท่ากับ -1 (งูไม่ได้เคลื่อนไปทางด้านบน)
+                    main_game.snake.play_down_sound()
                     main_game.snake.direction = Vector2(0,1) # => งูจะเคลื่อนที่ไปทางด้านล่าง
 
             if event.key == pygame.K_RIGHT: # ถ้ามีเหตุการณ์ที่กดลูกศรขวา 
                 if main_game.snake.direction.x != -1: # ถ้าทิศทางของงู ในพิกัด x ไม่เท่ากับ -1 (งูไม่ได้เคลื่อนไปทางด้านซ้าย)
+                    main_game.snake.play_right_sound()
                     main_game.snake.direction = Vector2(1,0) # => งูจะเคลื่อนที่ไปทางขวา
 
             if event.key == pygame.K_LEFT: # ถ้ามีเหตุการณ์ที่กดลูกศรซ้าย
                 if main_game.snake.direction.x != 1: # ถ้าทิศทางของงู ในพิกัด x ไม่เท่ากับ 1 (งูไม่ได้เคลื่อนไปทางด้านขวา)
+                    main_game.snake.play_left_sound()
                     main_game.snake.direction = Vector2(-1,0) # => งูจะเคลื่อนที่ไปทางซ้าย
                 
 
