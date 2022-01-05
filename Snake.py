@@ -172,7 +172,7 @@ class MAIN:
         self.musicbackground_sound = pygame.mixer.Sound('Sound/music background.wav') # เสียงเพลงประกอบ
         self.musicbackground_sound.set_volume(0.1) # ความดังเสียงเพลงประกอบ
         self.musicbackground_sound.play(loops = -1) # เสียงเพลงประกอบทำงานไม่หยุด
-
+        
     def update(self):
         self.snake.move_snake()
         self.check_collision()
