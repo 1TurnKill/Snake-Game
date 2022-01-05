@@ -4,7 +4,6 @@ from pygame.math import Vector2
 class SNAKE:
 
     def __init__(self):
-
         self.body = [Vector2(5,10),Vector2(4,10),Vector2(3,10)] # ตัวงู
         self.direction = Vector2(1,0) # ทิศทางที่งูเริ่มเคลื่อนที่
         self.new_block = False
@@ -26,9 +25,6 @@ class SNAKE:
         self.body_topleft = pygame.image.load('Graphics/snake/body/body_topleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านบนเเล้วไปทางซ้าย
         self.body_bottomright = pygame.image.load('Graphics/snake/body/body_bottomright.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางขวา
         self.body_bottomleft = pygame.image.load('Graphics/snake/body/body_bottomleft.png').convert_alpha() # ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางซ้าย
-
-    
-        self.update_head_graphics()
 
     def draw_snake(self):
         self.update_head_graphics()
@@ -68,10 +64,6 @@ class SNAKE:
                                                                                                                        # หรือ บล็อกก่อนหน้าอยู่ถัดจากบล็อกปัจจุบันด้านล่าง เเละ บล็อกถัดไปอยู่ถัดจากบล็อกปัจจุบันด้านขวา
                         screen.blit(self.body_bottomright,block_rect) # ให้เเสดง รูปภาพที่เป็น "ภาพตัวของงู ที่มาจากด้านล่างเเล้วไปทางขวา"
                     
-
-
-           
-
     def update_head_graphics(self):
         head_relation = self.body[1] - self.body[0] # ให้ head_relation เท่ากับการ ที่ Vector ส่วนของงูในตำเเหน่งที่ 0(หัวงู) - Vector ส่วนของงูในตำเเหน่งที่ 1(ก่อนหัวงู) 
         if head_relation == Vector2(1,0): self.head = self.head_left # ถ้า head_relation มีค่าเท่ากับ Vector2(1,0) ให้ self.head เท่ากับ "ภาพหัว หันด้านซ้าย"
@@ -151,6 +143,7 @@ class MAIN:
         self.check_fail()
 
     def draw_elements(self):
+        self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
 
@@ -174,6 +167,24 @@ class MAIN:
         pygame.quit()
         sys.exit()
 
+    def draw_grass(self):
+        grass_color = (167,209,61) # สีเขียวเข้ม
+        for row in range(cell_number): #ให้ เเถวในเเนวนอน เป็น การจัดลำดับตัวเลขของ cell_number (0,1,2,3,4,..,19)
+            if row % 2 == 0: # ถ้า เเถวในเเนวนอน หาร 2 เเล้วเหลือเศษ 0 -> เลขคู่
+                for col in range(cell_number): #ให้ เเถวในเเนวตั้ง เป็น การจัดลำดับตัวเลขของ cell_number (0,1,2,3,4,..,19)
+                    if col % 2 == 0: # ถ้า เเถวในเเนวตั้ง หาร 2 เเล้วเหลือเศษ 0 -> เลขคู่
+                        # สร้าง rect
+                        grass_rect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                        # วาด rectangle
+                        pygame.draw.rect(screen,grass_color,grass_rect)
+            else:
+                for col in range(cell_number): #ให้ เเถวในเเนวตั้ง เป็น การจัดลำดับตัวเลขของ cell_number (0,1,2,3,4,..,19)
+                    if col % 2 != 0: # ถ้า เเถวในเเนวตั้ง หาร 2 เเล้วเหลือเศษที่ไม่ใช่ 0 -> เลขคี่
+                        # สร้าง rect
+                        grass_rect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                        # วาด rectangle
+                        pygame.draw.rect(screen,grass_color,grass_rect)
+
 
 pygame.init()
 cell_size = 40  # ขนาด cell
@@ -181,6 +192,7 @@ cell_number = 20 # จำนวน cell
 screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size)) # ขนาดหน้าจอ
 clock = pygame.time.Clock() # ตัวกำหนดค่า fps
 apple = pygame.image.load('Graphics/fruit/apple.png').convert_alpha() # นำรูปเเอปเปิ้ลเข้า ปล. convert_alpha() ทำให้ pygame ทำงานง่ายขึ้นเฉยๆ
+game_font = pygame.font.Font('Font/PressStart2P-vaV7', 25) # นำ font เข้า --> 
 
 # ตั้งค่าเวลา(millisecond) การอัพเดตข้อมูลบน screen
 SCREEN_UPDATE = pygame.USEREVENT 
@@ -218,7 +230,7 @@ while True:
                 
 
 
-    screen.fill((175,215,70)) # กำหนดสีของ screen
+    screen.fill((175,215,70)) # กำหนดสีของ screen -> สีเขียวอ่อน
     main_game.draw_elements() # อยู่ใน class main
     pygame.display.update() # อยู่ใน class main
     clock.tick(60) # fps = 60
