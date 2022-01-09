@@ -276,7 +276,7 @@ while True:
         if event.type == SCREEN_UPDATE:
             main_game.update()
         # event การควบคุมเคลื่อนไหวของงู จาก keyboard
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN: # ถ้ามี event การกดปุ่ม 
 
             if event.key == pygame.K_UP: # ถ้ามีเหตุการณ์ที่กดลูกศรขึ้น 
                 if main_game.snake.direction.y != 1: # ถ้าทิศทางของงู ในพิกัด y ไม่เท่ากับ 1 (งูไม่ได้เคลื่อนไปทางด้านล่าง) 
