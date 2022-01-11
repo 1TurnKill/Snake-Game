@@ -256,6 +256,7 @@ pygame.init()
 cell_size = 40  # ขนาด cell
 cell_number = 20 # จำนวน cell
 screen = pygame.display.set_mode((cell_number * cell_size,cell_number * cell_size)) # ขนาดหน้าจอ
+pygame.display.set_caption('Snake Game') # เป็นการตั้งชื่อหน้าต่างว่า Pong
 clock = pygame.time.Clock() # ตัวกำหนดค่า fps
 apple = pygame.image.load('Graphics/fruit/apple.png').convert_alpha() # นำรูปเเอปเปิ้ลเข้า ปล. convert_alpha() ทำให้ pygame ทำงานง่ายขึ้นเฉยๆ
 game_font = pygame.font.Font('Font/PressStart2P-vaV7.ttf', 25) # นำ font เข้า --> เป็น Font PressStart2P ขนาด 25px 
